@@ -9,12 +9,10 @@ import com.demo.warehousemanagementsystem.repository.ProductRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Var;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -64,6 +62,7 @@ public class ProductApplication {
         return product.getAvailableUnits();
     }
 
+    @Cacheable(value = "productCache", key = "#productId", unless = "#result.availableUnits() > 1")
     public ProductResponse getProduct(@NonNull final Long productId) {
         final var product = productRepository.findProductByProductIdAndIsDeleted(
                 productId,
