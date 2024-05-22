@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(JsonStringConversionException.class)
+    @ExceptionHandler({JsonStringConversionException.class})
     public ResponseEntity<String> jsonStringConversionException(JsonStringConversionException jsonStringConversionException) {
         String jsonString = JsonSerialize.exceptionJsonString(jsonStringConversionException.getMessage());
         return ResponseEntity
@@ -24,6 +24,14 @@ public class GlobalExceptionHandler {
         String jsonString = JsonSerialize.exceptionJsonString(databaseOperationException.getMessage());
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonString);
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<String> productNotFoundException(ProductNotFoundException productNotFoundException) {
+        final String jsonString = JsonSerialize.exceptionJsonString(productNotFoundException.getResultInfo());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(jsonString);
     }

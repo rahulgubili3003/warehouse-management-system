@@ -1,14 +1,17 @@
 package com.demo.warehousemanagementsystem.application;
 
 import com.demo.warehousemanagementsystem.dto.ProductRequest;
+import com.demo.warehousemanagementsystem.dto.ProductResponse;
 import com.demo.warehousemanagementsystem.entity.Product;
-import com.demo.warehousemanagementsystem.enums.Category;
 import com.demo.warehousemanagementsystem.exception.DatabaseOperationException;
+import com.demo.warehousemanagementsystem.exception.ProductNotFoundException;
 import com.demo.warehousemanagementsystem.repository.ProductRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PRODUCT_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +38,8 @@ public class ProductApplication {
 
     public Integer getStock(@NonNull final Long productId) {
         try {
-            final var product = productRepository.findProductByProductIdAndIsDeleted(productId, false);
+            final Product product = productRepository.findProductByProductIdAndIsDeleted(productId, false)
+                    .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
             return product.getAvailableUnits();
         } catch (Exception e) {
             log.error("Error while getting Stock Data from the DB", e);
@@ -43,12 +47,31 @@ public class ProductApplication {
         }
     }
 
-    public Product getProduct(@NonNull final Long productId) {
+    public ProductResponse getProduct(@NonNull final Long productId) {
+        final var product = productRepository.findProductByProductIdAndIsDeleted(
+                productId,
+                false
+        ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+
+        return ProductResponse
+                .builder()
+                .productId(productId)
+                .productName(product.getProductName())
+                .availableUnits(product.getAvailableUnits())
+                .build();
+    }
+
+    public Product updateStockDetails(@NonNull final ProductRequest productRequest) {
         try {
-            return productRepository.findProductByProductIdAndIsDeleted(productId, false);
+            final var product = productRepository.findProductByProductIdAndIsDeleted(
+                    productRequest.productId(),
+                    false
+            ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+            product.setAvailableUnits(productRequest.availableUnits());
+            return productRepository.save(product);
         } catch (Exception e) {
-            log.error("Error", e);
-            throw new DatabaseOperationException("Error while getting Product details from the DB", e);
+            log.error("Error occurred while fetching the product", e);
+            throw new DatabaseOperationException("Error while Performing DB operations", e);
         }
     }
 }
