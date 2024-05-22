@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PRODUCT_NOT_FOUND;
+import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PRODUCT_SAVE_IN_DB_FAILED;
 
 @Service
 @RequiredArgsConstructor
@@ -32,19 +33,14 @@ public class ProductApplication {
             return productRepository.save(product);
         } catch (Exception e) {
             log.error("Could not save product in the DB", e);
-            throw new DatabaseOperationException("Error adding Product to the DB", e);
+            throw new DatabaseOperationException(PRODUCT_SAVE_IN_DB_FAILED);
         }
     }
 
     public Integer getStock(@NonNull final Long productId) {
-        try {
-            final Product product = productRepository.findProductByProductIdAndIsDeleted(productId, false)
-                    .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
-            return product.getAvailableUnits();
-        } catch (Exception e) {
-            log.error("Error while getting Stock Data from the DB", e);
-            throw new DatabaseOperationException("Error while getting stock details", e);
-        }
+        final Product product = productRepository.findProductByProductIdAndIsDeleted(productId, false)
+                .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+        return product.getAvailableUnits();
     }
 
     public ProductResponse getProduct(@NonNull final Long productId) {
@@ -52,7 +48,6 @@ public class ProductApplication {
                 productId,
                 false
         ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
-
         return ProductResponse
                 .builder()
                 .productId(productId)
@@ -62,16 +57,32 @@ public class ProductApplication {
     }
 
     public Product updateStockDetails(@NonNull final ProductRequest productRequest) {
+        final var product = productRepository.findProductByProductIdAndIsDeleted(
+                productRequest.productId(),
+                false
+        ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+        product.setAvailableUnits(productRequest.availableUnits());
+        return productRepository.save(product);
+    }
+
+    public ProductResponse deleteProduct(@NonNull final Long productId) {
+        final var product =
+                productRepository.
+                        findProductByProductIdAndIsDeleted(productId, false)
+                        .orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+
+        product.setIsDeleted(true);
         try {
-            final var product = productRepository.findProductByProductIdAndIsDeleted(
-                    productRequest.productId(),
-                    false
-            ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
-            product.setAvailableUnits(productRequest.availableUnits());
-            return productRepository.save(product);
+            final var savedProduct = productRepository.save(product);
+            return ProductResponse
+                    .builder()
+                    .productId(productId)
+                    .productName(savedProduct.getProductName())
+                    .availableUnits(savedProduct.getAvailableUnits())
+                    .build();
         } catch (Exception e) {
-            log.error("Error occurred while fetching the product", e);
-            throw new DatabaseOperationException("Error while Performing DB operations", e);
+            log.error("Error occurred while saving product in DB", e);
+            throw new DatabaseOperationException(PRODUCT_SAVE_IN_DB_FAILED);
         }
     }
 }

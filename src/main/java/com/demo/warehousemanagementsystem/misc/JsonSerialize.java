@@ -10,6 +10,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Slf4j
@@ -20,7 +21,7 @@ public class JsonSerialize {
     public static String convertResponseToJsonString(@NonNull final Object data) {
         try {
             ObjectNode jsonObject = OBJECT_MAPPER.createObjectNode();
-            jsonObject.set("result", OBJECT_MAPPER.convertValue("OK", JsonNode .class));
+            jsonObject.set("result", OBJECT_MAPPER.convertValue(HttpStatus.OK, JsonNode .class));
             jsonObject.set("data", OBJECT_MAPPER.convertValue(data, JsonNode.class));
             return OBJECT_MAPPER.writeValueAsString(jsonObject);
         } catch (JsonProcessingException e) {
