@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,6 +60,15 @@ public class ProductController {
     public ResponseEntity<String> updateStockDetails(@RequestBody final ProductRequest productRequest) {
         final var updatedProduct = productApplication.updateStockDetails(productRequest);
         final String jsonString = JsonSerialize.convertResponseToJsonString(updatedProduct);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonString);
+    }
+
+    @DeleteMapping("/deleteProduct/{productId}")
+    public ResponseEntity<String> deleteProduct(@PathVariable final Long productId) {
+        final var product = productApplication.deleteProduct(productId);
+        final var jsonString = JsonSerialize.convertResponseToJsonString(product);
         return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(jsonString);

@@ -1,10 +1,18 @@
 package com.demo.warehousemanagementsystem.exception;
 
+import com.demo.warehousemanagementsystem.common.ResultInfo;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor(force = true)
+@EqualsAndHashCode(callSuper = true)
 public class DatabaseOperationException extends RuntimeException {
-    public DatabaseOperationException(String message) {
-        super(message);
-    }
-    public DatabaseOperationException(String message, Throwable e) {
-        super(message, e);
+    private final ResultInfo resultInfo;
+
+    public DatabaseOperationException(ResultInfo resultInfo) {
+        super(resultInfo.getMessage());
+        this.resultInfo = resultInfo;
     }
 }
