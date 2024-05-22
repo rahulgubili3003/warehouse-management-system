@@ -1,6 +1,7 @@
 package com.demo.warehousemanagementsystem.application;
 
 import com.demo.warehousemanagementsystem.dto.ProductRequest;
+import com.demo.warehousemanagementsystem.dto.ProductResponse;
 import com.demo.warehousemanagementsystem.entity.Product;
 import com.demo.warehousemanagementsystem.exception.DatabaseOperationException;
 import com.demo.warehousemanagementsystem.exception.ProductNotFoundException;
@@ -46,11 +47,18 @@ public class ProductApplication {
         }
     }
 
-    public Product getProduct(@NonNull final Long productId) {
-        return productRepository.findProductByProductIdAndIsDeleted(
+    public ProductResponse getProduct(@NonNull final Long productId) {
+        final var product = productRepository.findProductByProductIdAndIsDeleted(
                 productId,
                 false
         ).orElseThrow(() -> new ProductNotFoundException(PRODUCT_NOT_FOUND));
+
+        return ProductResponse
+                .builder()
+                .productId(productId)
+                .productName(product.getProductName())
+                .availableUnits(product.getAvailableUnits())
+                .build();
     }
 
     public Product updateStockDetails(@NonNull final ProductRequest productRequest) {
