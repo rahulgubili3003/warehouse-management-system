@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Var;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.Mapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +59,15 @@ public class ProductController {
         String jsonString = JsonSerialize.convertResponseToJsonString(product);
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonString);
+    }
+
+    @PutMapping("/updateStockDetails")
+    public ResponseEntity<String> updateStockDetails(@RequestBody final ProductRequest productRequest) {
+        final var updatedProduct = productApplication.updateStockDetails(productRequest);
+        final String jsonString = JsonSerialize.convertResponseToJsonString(updatedProduct);
+        return ResponseEntity.status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(jsonString);
     }
