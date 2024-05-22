@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,6 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
     private final ProductApplication productApplication;
+
+    @GetMapping("/getAllProducts")
+    public ResponseEntity<String> getAllProducts(@RequestParam(required = false, defaultValue = "") final String sortBy) {
+        final var products = productApplication.getAllProducts(sortBy);
+        final String jsonstring = JsonSerialize.convertResponseToJsonString(products);
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonstring);
+    }
 
     @GetMapping("/getProduct/{productId}")
     public ResponseEntity<String> getProductDetails(@NonNull @PathVariable final Long productId) {
