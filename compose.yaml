@@ -1,0 +1,10 @@
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-warehouse
+    environment:
+      POSTGRES_USER: worker
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: warehouse-db
+    ports:
+      - "5432:5432"

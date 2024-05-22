@@ -1,0 +1,12 @@
+server:
+  port: 8092
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/warehouse-db
+    username: worker
+    password: secret
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
