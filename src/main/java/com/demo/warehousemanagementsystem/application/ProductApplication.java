@@ -9,7 +9,14 @@ import com.demo.warehousemanagementsystem.repository.ProductRepository;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Var;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PRODUCT_NOT_FOUND;
 import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PRODUCT_SAVE_IN_DB_FAILED;
@@ -20,6 +27,20 @@ import static com.demo.warehousemanagementsystem.common.ResultInfoConstants.PROD
 public class ProductApplication {
 
     private final ProductRepository productRepository;
+
+    public List<ProductResponse> getAllProducts(@NonNull final String sortBy) {
+        final var products = Objects.equals(sortBy, "") ? productRepository.findAll() : productRepository.findAll(Sort.by(sortBy));
+        return products.stream().map(this::productResponseBuilder).toList();
+    }
+
+    private ProductResponse productResponseBuilder(@NonNull final Product product) {
+        return ProductResponse
+                .builder()
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .availableUnits(product.getAvailableUnits())
+                .build();
+    }
 
     public Product addProduct(final ProductRequest productRequest) {
         final Product product = Product.builder()
