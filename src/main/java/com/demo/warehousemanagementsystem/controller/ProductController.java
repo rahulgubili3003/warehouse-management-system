@@ -59,7 +59,7 @@ public class ProductController {
     public ResponseEntity<String> addProducts(@RequestBody final ProductRequest productRequest) {
         log.info("Category Details: {}", productRequest.category());
         final var product = productApplication.addProduct(productRequest);
-        String jsonString = JsonSerialize.convertResponseToJsonString(product);
+        final String jsonString = JsonSerialize.convertResponseToJsonString(product);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .contentType(MediaType.APPLICATION_JSON)
