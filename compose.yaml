@@ -16,3 +16,5 @@ services:
       POSTGRES_DB: warehouse-db
     ports:
       - "5432:5432"
+    volumes:
+      - /Users/rahul.gubiligari/Desktop/Go_Projects/docker_volumes:/var/lib/postgresql/data
