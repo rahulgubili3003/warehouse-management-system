@@ -40,7 +40,7 @@ public class ProductApplication {
                 .build();
     }
 
-    public Product addProduct(final ProductRequest productRequest) {
+    public ProductResponse addProduct(final ProductRequest productRequest) {
         final Product product = Product.builder()
                 .availableUnits(productRequest.availableUnits())
                 .productId(productRequest.productId())
@@ -49,7 +49,12 @@ public class ProductApplication {
                 .isDeleted(false)
                 .build();
         try {
-            return productRepository.save(product);
+            final Product savedProduct = productRepository.save(product);
+            return ProductResponse.builder()
+                    .productId(savedProduct.getProductId())
+                    .productName(savedProduct.getProductName())
+                    .availableUnits(savedProduct.getAvailableUnits())
+                    .build();
         } catch (Exception e) {
             log.error("Could not save product in the DB", e);
             throw new DatabaseOperationException(PRODUCT_SAVE_IN_DB_FAILED);
